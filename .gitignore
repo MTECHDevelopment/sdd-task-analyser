@@ -1,0 +1,26 @@
+
+# Ambiente virtual Python
+.venv/
+venv/
+env/
+
+# Cache e arquivos compilados
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Cache de testes
+.pytest_cache/
+
+# Cobertura de testes
+htmlcov/
+.coverage
+coverage.xml
+
+# Configurações locais do editor
+.vscode/
+
+# Arquivos temporários
+*.tmp
+*.log
+.DS_Store

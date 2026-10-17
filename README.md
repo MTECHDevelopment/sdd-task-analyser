@@ -21,3 +21,23 @@ Repositório do projeto **TaskAnalyzer** com foco em desenvolvimento guiado por 
 ## Próxima etapa (Fase 2)
 
 Implementar o sistema TaskAnalyzer com test harness automatizado em `pytest`, seguindo o contrato definido na Fase 1.
+
+## Fase 2 (implementação atual)
+
+- Módulo de análise: `/home/runner/work/sdd-task-analyser/sdd-task-analyser/src/task_analyzer.py`
+- Test harness: `/home/runner/work/sdd-task-analyser/sdd-task-analyser/tests/test_harness.py`
+
+### Execução dos testes
+
+```bash
+python -m pip install -r requirements.txt
+python -m pytest -q
+```
+
+### Execução via CLI
+
+```bash
+python /home/runner/work/sdd-task-analyser/sdd-task-analyser/src/task_analyzer.py --input /caminho/tasks.json --pretty
+```
+
+Formato esperado de entrada: lista JSON de tarefas no contrato definido em `task_analyzer_spec.md`.

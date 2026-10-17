@@ -1,37 +1,59 @@
-# Cenários de Aceite — TaskAnalyzer
+# acceptance_scenarios.md
 
-## Cenário 1 — Sucesso no processamento
+## Cenários de aceite (Dado–Quando–Então)
 
-**Dado** uma lista válida de tarefas com IDs únicos e datas válidas  
-**Quando** o TaskAnalyzer processa a entrada  
-**Então** o resultado deve indicar sucesso e retornar tarefas normalizadas sem erros.
+### Cenário 1 — Análise bem-sucedida com dados válidos
 
-## Cenário 2 — Falha por lista vazia
+**Dado** uma lista de tarefas com campos obrigatórios válidos e IDs únicos  
+**Quando** o analisador executar o processamento  
+**Então** o relatório deve ser gerado com resumo total, distribuição por status/prioridade e sem erros.
+
+### Cenário 2 — Falha por task sem `id`
+
+**Dado** uma lista contendo uma tarefa sem campo `id`  
+**Quando** o analisador validar a entrada  
+**Então** deve registrar erro de validação indicando ausência de identificador obrigatório.
+
+### Cenário 3 — Falha por `status` inválido
+
+**Dado** uma tarefa com valor de `status` fora do conjunto permitido  
+**Quando** a validação semântica for executada  
+**Então** o sistema deve rejeitar a tarefa e retornar mensagem de erro clara.
+
+### Cenário 4 — Caso de borda com lista vazia
 
 **Dado** uma lista de tarefas vazia  
-**Quando** o TaskAnalyzer executa a validação  
-**Então** deve retornar erro de validação informando que a lista não pode ser vazia.
+**Quando** a análise for executada  
+**Então** o relatório deve ser gerado com totais zerados e sem exceções não tratadas.
 
-## Cenário 3 — Falha por ID duplicado
+### Cenário 5 — ID duplicado
 
 **Dado** duas tarefas com o mesmo `id`  
-**Quando** o TaskAnalyzer valida unicidade  
-**Então** deve retornar erro de duplicidade de ID com referência ao valor conflitante.
+**Quando** o sistema validar unicidade  
+**Então** deve retornar erro indicando duplicidade de identificador.
 
-## Cenário 4 — Falha por data inválida
+### Cenário 6 — Risco de atraso
 
-**Dado** uma tarefa com `created_at` ou `due_date` em formato inválido  
-**Quando** o TaskAnalyzer valida campos de data  
-**Então** deve retornar erro indicando formato de data inválido.
+**Dado** tarefas com prazo vencido e status ainda não concluído  
+**Quando** o cálculo de risco for executado  
+**Então** o campo `risk_overdue` deve refletir corretamente a quantidade de tarefas em risco.
 
-## Cenário 5 — Campo opcional ausente
+### Cenário 7 — Robustez com campos opcionais ausentes
 
-**Dado** uma tarefa sem `description`  
-**Quando** o TaskAnalyzer processa a entrada  
-**Então** deve concluir com sucesso, mantendo o campo opcional como nulo/ausente sem erro.
+**Dado** tarefas válidas sem `due_date` e sem `owner`  
+**Quando** a análise for executada  
+**Então** o sistema deve processar normalmente, preservando os cálculos aplicáveis.
 
-## Cenário 6 — Borda de coerência temporal
+### Cenário 8 — Estrutura inválida de data
 
-**Dado** uma tarefa com `due_date` anterior a `created_at`  
-**Quando** o TaskAnalyzer valida coerência temporal  
-**Então** deve retornar erro de regra de negócio para intervalo inválido.
+**Dado** tarefa com `due_date` em formato não ISO-8601  
+**Quando** a validação de formato for executada  
+**Então** deve ser retornado erro de formato para a tarefa afetada.
+
+## Matriz de cobertura
+
+| ID requisito | Cenários relacionados |
+|---|---|
+| RQ-01 | 1, 4, 6, 7 |
+| RQ-03 | Todos |
+| RQ-06 | Todos |

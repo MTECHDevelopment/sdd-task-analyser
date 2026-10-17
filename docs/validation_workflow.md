@@ -1,20 +1,43 @@
-# Workflow de Validação — Fase 1
+# Validação por etapa e preparo para CI/CD
 
-## Objetivo
+## 1. Estratégia de validação incremental
 
-Padronizar a validação dos artefatos obrigatórios da Fase 1 para evitar regressões documentais.
+Cada etapa deve seguir o ciclo:
 
-## Ciclo por etapa
+1. atualizar requisito/escopo;
+2. alinhar cenário de aceite;
+3. implementar mudança;
+4. executar validação automatizada;
+5. registrar evidência no commit/PR.
 
-1. Atualizar documentação relacionada ao requisito.
-2. Executar validação local:
-   - `python tools/validate_phase1.py`
-3. Revisar saída e corrigir inconsistências.
-4. Submeter alteração com rastreabilidade explícita.
-5. Validar novamente no CI (`phase1-validation.yml`).
+## 2. Verificação de commits
 
-## Critérios mínimos de conformidade
+Boas práticas mínimas:
 
-- Presença de todos os artefatos exigidos.
-- Estrutura mínima (seções-chave) em cada arquivo.
-- Workflow de CI ativo para `push` e `pull_request`.
+1. Commits pequenos e com mensagem descritiva.
+2. Um objetivo por commit.
+3. Referência ao requisito/cenário afetado no corpo da PR.
+
+Padrão sugerido de mensagem:
+
+- `feat: ...`
+- `fix: ...`
+- `docs: ...`
+- `test: ...`
+- `chore: ...`
+
+## 3. Base para integração CI/CD
+
+Pipeline mínimo recomendado (próxima fase):
+
+1. validação de estilo/lint;
+2. execução do test harness em `pytest`;
+3. validação de segurança básica (segredos/dependências);
+4. bloqueio de merge em caso de falha.
+
+## 4. Evidências obrigatórias na PR
+
+- descrição objetiva do que foi feito;
+- quais cenários de aceite foram cobertos;
+- quais comandos/testes foram executados e resultado;
+- limitações e próximos passos, quando aplicável.

@@ -1,8 +1,9 @@
 from __future__ import annotations
 
 from datetime import datetime, timezone
+import json
 
-from src.task_analyzer import analyze_tasks
+from src.task_analyzer import analyze_tasks, run_cli
 
 
 def test_analyze_tasks_successful_report() -> None:
@@ -105,3 +106,44 @@ def test_optional_fields_can_be_omitted() -> None:
 
     assert report["errors"] == []
     assert report["summary"]["by_priority"] == {"critical": 1}
+
+
+def test_invalid_status_returns_validation_error() -> None:
+    report = analyze_tasks(
+        [
+            {
+                "id": "T-4",
+                "title": "Status inválido",
+                "status": "blocked",
+                "priority": "low",
+            }
+        ]
+    )
+
+    assert len(report["errors"]) == 1
+    assert "Status inválido: 'blocked'" in report["errors"][0]["messages"]
+
+
+def test_cli_generates_json_report(tmp_path) -> None:
+    input_path = tmp_path / "tasks.json"
+    input_path.write_text(
+        json.dumps(
+            [
+                {
+                    "id": "T-1",
+                    "title": "Implementar",
+                    "status": "todo",
+                    "priority": "high",
+                }
+            ]
+        ),
+        encoding="utf-8",
+    )
+    output_path = tmp_path / "report.json"
+
+    result = run_cli(["--input", str(input_path), "--output", str(output_path), "--pretty"])
+
+    assert result == 0
+    report = json.loads(output_path.read_text(encoding="utf-8"))
+    assert report["summary"]["total_tasks"] == 1
+    assert report["errors"] == []

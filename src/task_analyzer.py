@@ -2,6 +2,10 @@ from __future__ import annotations
 
 from collections import Counter
 from datetime import datetime, timezone
+import json
+from pathlib import Path
+import argparse
+import sys
 from typing import Any
 
 VALID_STATUSES = {"todo", "in_progress", "done"}
@@ -14,6 +18,13 @@ def _parse_due_date(raw_due_date: str) -> datetime:
     if due_date.tzinfo is None:
         return due_date.replace(tzinfo=timezone.utc)
     return due_date.astimezone(timezone.utc)
+
+
+def _load_tasks_from_json(input_path: Path) -> list[dict[str, Any]]:
+    payload = json.loads(input_path.read_text(encoding="utf-8"))
+    if not isinstance(payload, list):
+        raise ValueError("Entrada inválida: o arquivo deve conter uma lista JSON de tarefas.")
+    return payload
 
 
 def analyze_tasks(tasks: list[dict[str, Any]], now: datetime | None = None) -> dict[str, Any]:
@@ -88,3 +99,40 @@ def analyze_tasks(tasks: list[dict[str, Any]], now: datetime | None = None) -> d
         "errors": errors,
         "generated_at": reference_now.isoformat().replace("+00:00", "Z"),
     }
+
+
+def run_cli(argv: list[str] | None = None) -> int:
+    parser = argparse.ArgumentParser(description="Executa análise de tarefas do TaskAnalyzer.")
+    parser.add_argument("--input", required=True, help="Caminho do arquivo JSON de entrada.")
+    parser.add_argument("--output", help="Caminho opcional para salvar o relatório JSON.")
+    parser.add_argument("--pretty", action="store_true", help="Formata saída JSON com indentação.")
+    args = parser.parse_args(argv)
+
+    try:
+        tasks = _load_tasks_from_json(Path(args.input))
+        report = analyze_tasks(tasks)
+    except FileNotFoundError:
+        print(f"Arquivo não encontrado: {args.input}", file=sys.stderr)
+        return 1
+    except json.JSONDecodeError:
+        print(f"JSON inválido no arquivo: {args.input}", file=sys.stderr)
+        return 1
+    except ValueError as error:
+        print(str(error), file=sys.stderr)
+        return 1
+
+    separators = (",", ":")
+    if args.pretty:
+        serialized = json.dumps(report, ensure_ascii=False, indent=2, sort_keys=True)
+    else:
+        serialized = json.dumps(report, ensure_ascii=False, separators=separators, sort_keys=True)
+
+    if args.output:
+        Path(args.output).write_text(serialized + "\n", encoding="utf-8")
+    else:
+        print(serialized)
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(run_cli())

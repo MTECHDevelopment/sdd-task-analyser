@@ -1,5 +1,7 @@
 # sdd-task-analyser
 
+# Task Analyzer [![CI](https://github.com/MTECHDevelopment/sdd-task-analyzer)](https://github.com/MTECHDevelopment/sdd-task-analyzer)
+
 Repositório do projeto **TaskAnalyzer** com foco em desenvolvimento guiado por especificação (SDD), IA assistiva e validação contínua.
 
 ## Entregáveis da Fase 1

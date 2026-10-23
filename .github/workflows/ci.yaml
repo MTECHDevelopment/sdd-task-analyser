@@ -18,6 +18,7 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: '3.11'
+          cache: 'pip' # Acelera o fluxo contínuo salvando o cache das dependências
 
       - name: Exibir versão do Python
         run: python --version
@@ -26,26 +27,32 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
-          pip install pytest # Garante que o pytest está instalado
+          pip install pytest pytest-md # pytest-md gera um resumo bonito em markdown
 
       - name: Executar testes
-        run: python -m pytest -q
+        # O parâmetro --md-report gera o relatório e o > salva no arquivo txt de forma limpa
+        run: python -m pytest --md-report --md-report-color never > pytest_results.txt
 
-      - name: Exibir resultados dos testes
+      - name: Exibir resultados dos testes no terminal
         if: always()
         run: |
-          echo "Resultados dos testes:"
+          echo "=== Resultados dos Testes ==="
           cat pytest_results.txt || echo "Nenhum resultado de teste encontrado."
         
+      - name: Adicionar resultados ao resumo do GitHub
+        if: always()
+        run: |
+          if [ -f pytest_results.txt ]; then
+            cat pytest_results.txt >> $GITHUB_STEP_SUMMARY
+          fi
+
       - name: Upload de resultados dos testes
         if: always()
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4 # Atualizado para v4 (evita avisos de depreciação)
         with:
           name: pytest-results
+          path: pytest_results.txt
         
-      - name: Configurar imagem Docker Buildx
-        uses: docker/setup-buildx-action@v3
-
       - name: Configurar Docker Buildx
         uses: docker/setup-buildx-action@v3
 

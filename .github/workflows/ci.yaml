@@ -27,31 +27,25 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
-          pip install pytest pytest-md # pytest-md gera um resumo bonito em markdown
+          pip install pytest
 
       - name: Executar testes
-        # O parâmetro --md-report gera o relatório e o > salva no arquivo txt de forma limpa
-        run: python -m pytest --md-report --md-report-color never > pytest_results.txt
+        # Gera o relatório XML nativo sem precisar de plugins externos
+        run: python -m pytest --junitxml=pytest_results.xml
 
-      - name: Exibir resultados dos testes no terminal
-        if: always()
-        run: |
-          echo "=== Resultados dos Testes ==="
-          cat pytest_results.txt || echo "Nenhum resultado de teste encontrado."
-        
       - name: Adicionar resultados ao resumo do GitHub
         if: always()
-        run: |
-          if [ -f pytest_results.txt ]; then
-            cat pytest_results.txt >> $GITHUB_STEP_SUMMARY
-          fi
+        uses: test-summary/action@v2
+        with:
+          paths: "pytest_results.xml"
+          show: "all"
 
       - name: Upload de resultados dos testes
         if: always()
-        uses: actions/upload-artifact@v4 # Atualizado para v4 (evita avisos de depreciação)
+        uses: actions/upload-artifact@v4
         with:
           name: pytest-results
-          path: pytest_results.txt
+          path: pytest_results.xml
         
       - name: Configurar Docker Buildx
         uses: docker/setup-buildx-action@v3

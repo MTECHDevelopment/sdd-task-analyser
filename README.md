@@ -1,6 +1,6 @@
 # sdd-task-analyser
 
-[!CI](https://github.com/MTECHDevelopment/sdd-task-analyzer)
+[!CI](https://github.com/MTECHDevelopment/sdd-task-analyzer/ci.yaml)
 
 
 Repositório do projeto **TaskAnalyzer** com foco em desenvolvimento guiado por especificação (SDD), IA assistiva e validação contínua.
